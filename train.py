@@ -86,10 +86,10 @@ def main(args):
         print(count)
         question, passage = ex["question"], ex["context"]
         passage_encodings_dict = tokenizer('<|startoftext|>'+ passage + '<|endoftext|>', truncation=True, max_length=MAXLEN_passage, padding="max_length")
-        input_ids.append(passage_encodings_dict['input_ids'])
-        input_att_msks.append(passage_encodings_dict['attention_mask'])
+        input_ids.append(torch.tensor(passage_encodings_dict['input_ids']))
+        input_att_msks.append(torch.tensor(passage_encodings_dict['attention_mask']))
         question_encodings_dict = tokenizer('<|startoftext|>'+ question + '<|endoftext|>', truncation=True, max_length=MAXLEN_question, padding="max_length")
-        output_ids.append(question_encodings_dict['input_ids'])
+        output_ids.append(torch.tensor(question_encodings_dict['input_ids']))
 
     # Convert to torch tensors
     input_ids = torch.tensor(input_ids)
