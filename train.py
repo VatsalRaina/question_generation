@@ -81,8 +81,8 @@ def main(args):
         if len(ex["answers"]["text"])==0:
             continue
         count+=1
-        if count==100:
-            break
+        # if count==100:
+        #     break
         print(count)
         question, passage = ex["question"], ex["context"]
         passage_encodings_dict = tokenizer('<|startoftext|>'+ passage + '<|endoftext|>', truncation=True, max_length=MAXLEN_passage, padding="max_length")
@@ -151,11 +151,10 @@ def main(args):
             b_input_ids = batch[0].to(device)
             b_att_msks = batch[1].to(device)
             b_output_ids = batch[2].to(device)
-            print(b_input_ids.size())
-            print(b_output_ids.size())
             model.zero_grad()
             outputs = model(input_ids=b_input_ids, attention_mask=b_att_msks, labels=b_output_ids, token_type_ids=None)
             loss = outputs[0]
+            print(loss.item())
             total_loss += loss.item()
             loss.backward()
             # Clip the norm of the gradients to 1.0.
