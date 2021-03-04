@@ -66,7 +66,7 @@ def main(args):
     train_data = load_dataset('squad_v2', split='train')
 
     # Load the GPT tokenizer.
-    tokenizer = GPT2Tokenizer.from_pretrained('gpt2', bos_token='<|startoftext|>', eos_token='<|endoftext|>', pad_token='<|pad|>') #gpt2-medium
+    tokenizer = GPT2Tokenizer.from_pretrained('gpt2-xl', bos_token='<|startoftext|>', eos_token='<|endoftext|>', pad_token='<|pad|>') #gpt2-medium
     # The max model length is 1024 for this model, although the actual embedding size for GPT small is 768
     # The beginning of sequence token <|startoftext|> token has the id 50258
     # The end of sequence token <|endoftext|> has the id 50256
@@ -104,10 +104,10 @@ def main(args):
     train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=args.batch_size)
 
     # I'm not really doing anything with the config buheret
-    configuration = GPT2Config.from_pretrained('gpt2', output_hidden_states=False)
+    configuration = GPT2Config.from_pretrained('gpt2-xl', output_hidden_states=False)
 
     # instantiate the model
-    model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration)
+    model = GPT2LMHeadModel.from_pretrained("gpt2-xl", config=configuration)
 
     # this step is necessary because I've added some tokens (bos_token, etc) to the embeddings
     # otherwise the tokenizer and model tensors won't match up
