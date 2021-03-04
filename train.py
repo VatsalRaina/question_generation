@@ -27,7 +27,6 @@ parser.add_argument('--lr_decay', type=float, default=0.85, help='Specify the le
 parser.add_argument('--dropout', type=float, default=0.1, help='Specify the dropout rate')
 parser.add_argument('--n_epochs', type=int, default=10, help='Specify the number of epochs to train for')
 parser.add_argument('--seed', type=int, default=1, help='Specify the global random seed')
-parser.add_argument('--train_data_path', type=str, help='Load path of training data')
 parser.add_argument('--save_path', type=str, help='Load path to which trained model will be saved')
 
 def format_time(elapsed):
@@ -64,8 +63,7 @@ def main(args):
     # Choose device
     device = get_default_device()
 
-    with open(args.train_data_path) as f:
-        train_data = json.load(f)
+    train_data = load_dataset('squad_v2', split='train')
 
     # Load the GPT tokenizer.
     tokenizer = GPT2Tokenizer.from_pretrained('gpt2', bos_token='<|startoftext|>', eos_token='<|endoftext|>', pad_token='<|pad|>') #gpt2-medium
