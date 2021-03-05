@@ -52,7 +52,7 @@ def main(args):
     # Choose device
     device = get_default_device()
 
-    test_data = load_dataset('squad_v2', split='dev')
+    test_data = load_dataset('squad_v2', split='validation')
 
     # Load the GPT tokenizer.
     tokenizer = GPT2Tokenizer.from_pretrained('gpt2-large', bos_token='<|startoftext|>', eos_token='<|endoftext|>', pad_token='<|pad|>') #gpt2-large
