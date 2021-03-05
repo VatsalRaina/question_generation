@@ -65,7 +65,7 @@ def main(args):
 
     train_data = load_dataset('squad_v2', split='train')
 
-    tokenizer = T5Tokenizer.from_pretained("t5-base")
+    tokenizer = T5Tokenizer.from_pretrained("t5-base")
 
     input_ids = []
     output_ids = []
