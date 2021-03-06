@@ -60,14 +60,19 @@ def main(args):
     model = torch.load(args.model_path, map_location=device)
     model.eval().to(device)
 
+    prev_passage = ""
+
     for ex in test_data:
         if len(ex["answers"]["text"])==0:
             continue
-        count+=1
-        if count==2:
-            break
-        print(count)
         question, passage = ex["question"], ex["context"]
+        if passage==prev_passage:
+            continue
+        count+=1
+        if count==20:
+            break
+        print(" ")
+        print(count)
         print(question)
         print(passage)
         print("Here is the generated question:")
