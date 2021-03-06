@@ -68,6 +68,7 @@ def main(args):
         question, passage = ex["question"], ex["context"]
         if passage==prev_passage:
             continue
+        prev_passage=passage
         count+=1
         if count==20:
             break
