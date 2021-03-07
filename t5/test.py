@@ -106,6 +106,12 @@ def main(args):
 
     print(len(all_passages))
 
+    with open("passages.txt", 'w') as f:
+        f.writelines("%s\n" % passag for passag in all_passages)
+
+    with open("gen_questions.txt", 'w') as f:
+        f.writelines("%s\n" % qu for qu in all_generated_questions)
+
 if __name__ == '__main__':
     args = parser.parse_args()
     main(args)
