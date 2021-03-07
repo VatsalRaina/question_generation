@@ -62,6 +62,9 @@ def main(args):
 
     prev_passage = ""
 
+    all_passages = []
+    all_generated_questions = []
+
     for ex in test_data:
         if len(ex["answers"]["text"])==0:
             continue
@@ -72,9 +75,10 @@ def main(args):
         count+=1
         if count==20:
             break
+        all_passages.append(passage)
         print(" ")
         print(count)
-        print(question)
+        # print(question)
         print(passage)
         print("Here is the generated question:")
         passage_encodings_dict = tokenizer(passage, truncation=True, max_length=MAXLEN_passage, padding="max_length", return_tensors="pt")
@@ -98,6 +102,9 @@ def main(args):
         ]
 
         print("".join(preds))
+        all_generated_questions.append("".join(preds))
+
+    print(len(all_passages))
 
 if __name__ == '__main__':
     args = parser.parse_args()
