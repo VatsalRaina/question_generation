@@ -77,8 +77,8 @@ def main(args):
         if len(ex["answers"]["text"])==0:
             continue
         count+=1
-        # if count==100:
-        #     break
+        if count==100:
+            break
         print(count)
         question, passage = ex["question"], ex["context"]
         passage_encodings_dict = tokenizer(passage, truncation=True, max_length=MAXLEN_passage, padding="max_length")
@@ -148,6 +148,7 @@ def main(args):
             model.zero_grad()
             outputs = model(input_ids=b_input_ids, attention_mask=b_att_msks, decoder_input_ids=b_output_ids, decoder_attention_mask=b_output_att_msks)
             loss = outputs[0]
+            print(loss)
             print(loss.item())
             total_loss += loss.item()
             loss.backward()
