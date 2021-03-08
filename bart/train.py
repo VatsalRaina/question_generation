@@ -70,6 +70,7 @@ def main(args):
     input_ids = []
     output_ids = []
     input_att_msks = []
+    output_att_msks = []
     count = 0
 
     for ex in train_data:
@@ -85,6 +86,7 @@ def main(args):
         input_att_msks.append(passage_encodings_dict['attention_mask'])
         question_encodings_dict = tokenizer(question, truncation=True, max_length=MAXLEN_question, padding="max_length")
         output_ids.append([x if x!=0 else -100 for x in question_encodings_dict['input_ids']])
+        output_att_msks.append(question_encodings_dict['attention_mask'])
 
     # Convert to torch tensors
     input_ids = torch.tensor(input_ids)
@@ -93,8 +95,10 @@ def main(args):
     input_att_msks = input_att_msks.long().to(device)
     output_ids = torch.tensor(output_ids)
     output_ids = output_ids.long().to(device)
-    
-    train_data = TensorDataset(input_ids, input_att_msks, output_ids)
+    output_att_msks = torch.tensor(output_att_msks)
+    output_att_msks = output_att_msks.long().to(device)
+
+    train_data = TensorDataset(input_ids, input_att_msks, output_ids, output_att_msks)
     train_sampler = RandomSampler(train_data)
     train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=args.batch_size)
 
@@ -140,8 +144,9 @@ def main(args):
             b_input_ids = batch[0].to(device)
             b_att_msks = batch[1].to(device)
             b_output_ids = batch[2].to(device)
+            b_output_att_msks = batch[3].to(device)
             model.zero_grad()
-            outputs = model(input_ids=b_input_ids, attention_mask=b_att_msks, labels=b_output_ids)
+            outputs = model(input_ids=b_input_ids, attention_mask=b_att_msks, decoder_input_ids=b_output_ids, decoder_attention_mask=b_output_att_msks)
             loss = outputs[0]
             print(loss.item())
             total_loss += loss.item()
