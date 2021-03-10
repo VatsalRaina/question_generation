@@ -4,9 +4,11 @@ import sys
 
 import torch
 import numpy as np
-
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 
+import matplotlib
+matplotlib.use('agg')
+from matplotlib import pyplot as plt
 
 MAXLEN_passage = 400
 MAXLEN_question = 100
@@ -44,7 +46,7 @@ def main(args):
     passage_encodings_dict = tokenizer(passage, return_tensors="pt")
     inp_id = torch.unsqueeze(passage_encodings_dict['input_ids'], 0)
 
-    question_encodings_dict = tokenizer(question, return_tensors="pt")
+    question_encodings_dict = tokenizer(gen_question, return_tensors="pt")
     out_id = torch.unsqueeze(question_encodings_dict['input_ids'], 0)
 
     embedding_matrix = model.t5.embeddings.word_embeddings
@@ -61,6 +63,8 @@ def main(args):
     words = tokenizer.tokenize(passage)
 
     M = len(words)
+    print(M)
+    print(len(list(saliency_max)))
     xx = np.linspace(0, M, M)
     plt.figure(figsize=(40,80))
     plt.barh(xx, list(saliency_max)[::-1])
