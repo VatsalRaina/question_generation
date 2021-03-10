@@ -41,7 +41,7 @@ def main(args):
 
 
     gen_question = "Who forced Ethelred II from his kingdom?"
-    passage = "The Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great’s conquest of the isle."
+    passage = "Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard."
     
     passage_encodings_dict = tokenizer(passage, return_tensors="pt")
     inp_id = passage_encodings_dict['input_ids']
@@ -68,9 +68,9 @@ def main(args):
     print(M)
     print(len(list(saliency_max)))
     xx = np.linspace(0, M, M)
-    plt.figure(figsize=(40,80))
+    plt.figure(figsize=(40,40))
     plt.barh(xx, list(saliency_max)[::-1])
-    plt.yticks(xx, labels=np.flip(words), fontsize=40)
+    plt.yticks(xx, labels=np.flip([w[1:] for w in words if w[0]=='_' else w]), fontsize=40)
     plt.xticks(fontsize=40)
     plt.ylabel('Passage')
     plt.ylim([-2, M+2])
