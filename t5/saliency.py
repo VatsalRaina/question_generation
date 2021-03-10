@@ -49,7 +49,7 @@ def main(args):
     question_encodings_dict = tokenizer(gen_question, return_tensors="pt")
     out_id = torch.unsqueeze(question_encodings_dict['input_ids'], 0)
 
-    embedding_matrix = model.t5.embeddings.word_embeddings
+    embedding_matrix = model.shared
     embedded = torch.tensor(embedding_matrix(inp_id), requires_grad=True)
 
     outputs = model(inputs_embeds=embedded, labels=out_id)
