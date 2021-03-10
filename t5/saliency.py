@@ -52,7 +52,7 @@ def main(args):
     embedding_matrix = model.t5.embeddings.word_embeddings
     embedded = torch.tensor(embedding_matrix(inp_id), requires_grad=True)
 
-    outputs = model(input_ids=inp_id, labels=out_id)
+    outputs = model(inputs_embeds=embedded, labels=out_id)
     loss = outputs[0]
 
     loss.backward()
