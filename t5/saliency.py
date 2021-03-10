@@ -1,37 +1,18 @@
 import argparse
 import os
 import sys
-import json
 
 import torch
-from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
 import numpy as np
-import random
-import time
-import datetime
 
-from datasets import load_dataset
 from transformers import T5ForConditionalGeneration, T5Tokenizer
-from keras.preprocessing.sequence import pad_sequences
 
 
 MAXLEN_passage = 400
 MAXLEN_question = 100
 
 parser = argparse.ArgumentParser(description='Get all command line arguments.')
-parser.add_argument('--batch_size', type=int, default=2, help='Specify the training batch size')
 parser.add_argument('--model_path', type=str, help='Load path of trained model')
-parser.add_argument('--prediction_save_path', type=str, help='Load path to which trained model will be saved')
-
-def format_time(elapsed):
-    '''
-    Takes a time in seconds and returns a string hh:mm:ss
-    '''
-    # Round to the nearest second.
-    elapsed_rounded = int(round((elapsed)))
-
-    # Format as hh:mm:ss
-    return str(datetime.timedelta(seconds=elapsed_rounded))
 
 # Set device
 def get_default_device():
@@ -57,13 +38,14 @@ def main(args):
     model.zero_grad()
 
 
-    gen_question = 
-    passage = 
+    gen_question = "Who forced Ethelred II from his kingdom?"
+    passage = "The Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great’s conquest of the isle."
+    
     passage_encodings_dict = tokenizer(passage, return_tensors="pt")
-    inp_id torch.unsqueeze(inp_id = passage_encodings_dict['input_ids'], 0)
+    inp_id = torch.unsqueeze(passage_encodings_dict['input_ids'], 0)
 
     question_encodings_dict = tokenizer(question, return_tensors="pt")
-    out_id = torch.unsqueeze(passage_encodings_dict['input_ids'], 0)
+    out_id = torch.unsqueeze(question_encodings_dict['input_ids'], 0)
 
     embedding_matrix = model.t5.embeddings.word_embeddings
     embedded = torch.tensor(embedding_matrix(inp_id), requires_grad=True)
