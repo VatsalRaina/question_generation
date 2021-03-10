@@ -70,7 +70,7 @@ def main(args):
     xx = np.linspace(0, M, M)
     plt.figure(figsize=(40,40))
     plt.barh(xx, list(saliency_max)[::-1])
-    plt.yticks(xx, labels=np.flip([w[1:] for w in words if w[0]=='_' else w]), fontsize=40)
+    plt.yticks(xx, labels=np.flip([w.replace('_', '') for w in words]), fontsize=40)
     plt.xticks(fontsize=40)
     plt.ylabel('Passage')
     plt.ylim([-2, M+2])
