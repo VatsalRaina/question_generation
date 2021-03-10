@@ -44,10 +44,10 @@ def main(args):
     passage = "The Normans were in contact with England from an early date. Not only were their original Viking brethren still ravaging the English coasts, they occupied most of the important ports opposite England across the English Channel. This relationship eventually produced closer ties of blood through the marriage of Emma, sister of Duke Richard II of Normandy, and King Ethelred II of England. Because of this, Ethelred fled to Normandy in 1013, when he was forced from his kingdom by Sweyn Forkbeard. His stay in Normandy (until 1016) influenced him and his sons by Emma, who stayed in Normandy after Cnut the Great’s conquest of the isle."
     
     passage_encodings_dict = tokenizer(passage, return_tensors="pt")
-    inp_id = torch.unsqueeze(passage_encodings_dict['input_ids'], 0)
+    inp_id = passage_encodings_dict['input_ids']
 
     question_encodings_dict = tokenizer(gen_question, return_tensors="pt")
-    out_id = torch.unsqueeze(question_encodings_dict['input_ids'], 0)
+    out_id = question_encodings_dict['input_ids']
 
     embedding_matrix = model.shared
     embedded = torch.tensor(embedding_matrix(inp_id), requires_grad=True)
