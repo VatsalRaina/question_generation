@@ -59,8 +59,10 @@ def main(args):
 
     saliency_max = torch.squeeze(torch.norm(embedded.grad.data.abs(), dim=-1))
     saliency_max = saliency_max.detach().cpu().numpy()
+    # remove end of sentence token
+    saliency_max = saliency_max[:-1]
 
-    words = tokenizer.tokenize(passage, add_special_tokens=True)
+    words = tokenizer.tokenize(passage)
 
     M = len(words)
     print(M)
