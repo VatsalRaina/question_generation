@@ -68,7 +68,7 @@ def main(args):
     for ex in test_data:
         if len(ex["answers"]["text"])==0:
             continue
-        question, passage = ex["question"], ex["context"]
+        question, passage = ex["question"], ex["context"].replace('\n', '')
         if passage==prev_passage:
             continue
         prev_passage=passage
