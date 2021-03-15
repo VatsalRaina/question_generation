@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser(description='Get all command line arguments.')
 parser.add_argument('--batch_size', type=int, default=2, help='Specify the training batch size')
 parser.add_argument('--model_path', type=str, help='Load path of trained model')
 parser.add_argument('--prediction_save_path', type=str, help='Load path to which trained model will be saved')
-parser.add_argument('--num_questions', type=int, default=1,  help='Number of questions to generate per passage')
+parser.add_argument('--num_questions', type=int, default=1, help='Number of questions to generate per passage')
 
 def format_time(elapsed):
     '''
@@ -74,8 +74,8 @@ def main(args):
             continue
         prev_passage=passage
         count+=1
-        # if count==20:
-        #     break
+        if count==20:
+            break
         
         #print(" ")
         print(count)
