@@ -89,7 +89,7 @@ def main(args):
         all_generated_ids = model.generate(
             input_ids=inp_id,
             attention_mask=inp_att_msk,
-            num_beams=1,
+            num_beams=args.num_questions,
             do_sample=True,
             max_length=80,
             repetition_penalty=2.5,
