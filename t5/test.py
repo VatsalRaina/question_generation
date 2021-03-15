@@ -74,8 +74,8 @@ def main(args):
             continue
         prev_passage=passage
         count+=1
-        # if count==20:
-        #     break
+        if count==20:
+            break
         
         #print(" ")
         print(count)
