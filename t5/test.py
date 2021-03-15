@@ -74,8 +74,8 @@ def main(args):
             continue
         prev_passage=passage
         count+=1
-        if count==20:
-            break
+        # if count==20:
+        #     break
         
         #print(" ")
         print(count)
@@ -86,18 +86,19 @@ def main(args):
         inp_id = passage_encodings_dict['input_ids']
         inp_att_msk = passage_encodings_dict['attention_mask']
 
-        for _ in range(args.num_questions):
-            generated_ids = model.generate(
-                input_ids=inp_id,
-                attention_mask=inp_att_msk,
-                num_beams=1,    # Greedy search
-                max_length=80,
-                repetition_penalty=2.5,
-                length_penalty=1.0,
-                early_stopping=True,
-                use_cache=True
-            )
-
+        all_generated_ids = model.generate(
+            input_ids=inp_id,
+            attention_mask=inp_att_msk,
+            num_beams=1,
+            do_sample=True,
+            max_length=80,
+            repetition_penalty=2.5,
+            length_penalty=1.0,
+            early_stopping=True,
+            use_cache=True,
+            num_return_sequences=args.num_questions
+        )
+        for generated_ids in all_generated_ids:
             preds = [
                 tokenizer.decode(generated_id, skip_special_tokens=True, clean_up_tokenization_spaces=True)
                 for generated_id in generated_ids
