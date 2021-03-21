@@ -79,8 +79,8 @@ def main(args):
 
     for sentence, question in zip(sentences, questions):
         count+=1
-        if count==10:
-            break
+        # if count==10:
+        #     break
         print(count)
         sentence_encodings_dict = tokenizer(sentence, truncation=True, max_length=MAXLEN_sentence, padding="max_length")
         input_ids.append(sentence_encodings_dict['input_ids'])
