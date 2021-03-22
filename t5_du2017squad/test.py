@@ -82,10 +82,10 @@ def main(args):
         all_generated_ids = model.generate(
             input_ids=inp_id,
             attention_mask=inp_att_msk,
-            # num_beams=args.num_questions, # Less variability
-            do_sample=True,
-            top_k=50,           # This parameter and the one below create more question variability but reduced quality of questions
-            top_p=0.95,          
+            num_beams=args.num_questions, # Less variability
+            #do_sample=True,
+            #top_k=50,           # This parameter and the one below create more question variability but reduced quality of questions
+            #top_p=0.95,          
             max_length=80,
             repetition_penalty=2.5,
             length_penalty=1.0,
