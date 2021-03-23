@@ -71,6 +71,9 @@ def main(args):
     all_generated_questions = []
 
     for sentence, question in zip(sentences, questions):
+        sentence = sentence.replace('\n', '')
+        if sentence in all_sentences:
+            continue
         count+=1
         # if count==20:
         #     break
