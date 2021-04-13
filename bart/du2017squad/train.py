@@ -70,7 +70,7 @@ def main(args):
     question_file = open(args.question_path, "r")
     questions = question_file.readlines()    
 
-    tokenizer = BartTokenizer.from_pretrained("facebook/bart-large", add_prefix_space=True)
+    tokenizer = BartTokenizer.from_pretrained("facebook/bart-large")
 
     input_ids = []
     output_ids = []
