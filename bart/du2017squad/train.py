@@ -30,6 +30,13 @@ parser.add_argument('--save_path', type=str, help='Load path to which trained mo
 parser.add_argument('--sentence_path', type=str, help='Load path to training sentences')
 parser.add_argument('--question_path', type=str, help='Load path to training questions')
 
+def shifted_target_left(target_ids, target_attention_mask):
+    # shifted LEFT
+    shifted_target_ids = torch.zeros(target_ids.shape, dtype=target_ids.dtype)
+    shifted_target_attention_mask = torch.zeros(target_attention_mask.shape, dtype=torch.float)
+    shifted_target_ids[:,:-1] = target_ids.clone().detach()[:,1:]
+    shifted_target_attention_mask[:,:-1] = target_attention_mask.clone().detach()[:,1:]
+    return shifted_target_ids, shifted_target_attention_mask
 
 def format_time(elapsed):
     '''
@@ -126,6 +133,8 @@ def main(args):
                                                 num_warmup_steps = 0.1*total_steps,
                                                 num_training_steps = total_steps)
 
+    criterion = torch.nn.CrossEntropyLoss(reduction='none')
+
     for epoch in range(args.n_epochs):
         # Perform one full pass over the training set.
         print("")
@@ -136,33 +145,34 @@ def main(args):
         # Reset the total loss for this epoch.
         total_loss = 0
         model.train()
-    # For each batch of training data...
+        # For each batch of training data...
         for step, batch in enumerate(train_dataloader):
             # Progress update every 40 batches.
             if step % 40 == 0 and not step == 0:
-                # Calculate elapsed time in minutes.
                 elapsed = format_time(time.time() - t0)
-                # Report progress.
                 print('  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.'.format(step, len(train_dataloader), elapsed))
             b_input_ids = batch[0].to(device)
             b_att_msks = batch[1].to(device)
             b_target_ids = batch[2].to(device)
-            b_out_att_msks = batch[3].to(device)
-            b_output_ids = b_target_ids[:, :-1].contiguous()
-            b_labels = b_target_ids[:, 1:].clone()
-            b_labels[b_target_ids[:, 1:] == 0] = -100
+            b_target_att_msks = batch[3].to(device)
+            b_shifted_target_ids, b_shifted_target_att_msks = shifted_target_left(b_target_ids, b_target_att_msks)
+            b_shifted_target_ids, b_shifted_target_att_msks = b_shifted_target_ids.to(device), b_shifted_target_att_msks.to(device)
+            # b_output_ids = b_target_ids[:, :-1].contiguous()
+            # b_labels = b_target_ids[:, 1:].clone()
+            # b_labels[b_target_ids[:, 1:] == 0] = -100
             model.zero_grad()
-            outputs = model(input_ids=b_input_ids, attention_mask=b_att_msks, decoder_input_ids=b_output_ids, decoder_attention_mask=b_out_att_msks, labels=b_labels)
-            loss = outputs[0]
+            outputs = model(input_ids=b_input_ids, attention_mask=b_att_msks, decoder_input_ids=b_target_ids, decoder_attention_mask=b_target_att_msks)
+            #loss = outputs[0]
+
+            lm_logits = outputs[0]
+            loss = criterion(lm_logits.view(-1, model.config.vocab_size), b_shifted_target_ids.view(-1))
+            b_shifted_target_att_mask = b_shifted_target_att_mask.view(-1)
+            loss = (loss * b_shifted_target_att_mask).sum() / b_shifted_target_att_mask.sum()
+
             print(loss.item())
             total_loss += loss.item()
             loss.backward()
-            # Clip the norm of the gradients to 1.0.
-            # This is to help prevent the "exploding gradients" problem.
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            # Update parameters and take a step using the computed gradient.
-            # The optimizer dictates the "update rule"--how the parameters are
-            # modified based on their gradients, the learning rate, etc.
             optimizer.step()
             # Update the learning rate.
             scheduler.step()
