@@ -98,8 +98,8 @@ def main(args):
     input_att_msks = input_att_msks.long().to(device)
     output_ids = torch.tensor(output_ids)
     output_ids = output_ids.long().to(device)
-    #output_att_msks = torch.tensor(output_att_msks)
-    #output_att_msks = output_att_msks.long().to(device)
+    output_att_msks = torch.tensor(output_att_msks)
+    output_att_msks = output_att_msks.long().to(device)
 
     train_data = TensorDataset(input_ids, input_att_msks, output_ids, output_att_msks)
     train_sampler = RandomSampler(train_data)
