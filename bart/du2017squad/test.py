@@ -89,7 +89,7 @@ def main(args):
             #do_sample=True,
             #top_k=50,           # This parameter and the one below create more question variability but reduced quality of questions
             #top_p=0.95,          
-            max_length=80,
+            max_length=40,
             repetition_penalty=2.5,
             length_penalty=1.0,
             early_stopping=True,
