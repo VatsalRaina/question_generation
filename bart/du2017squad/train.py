@@ -77,7 +77,7 @@ def main(args):
     question_file = open(args.question_path, "r")
     questions = question_file.readlines()    
 
-    tokenizer = BartTokenizer.from_pretrained("facebook/bart-large")
+    tokenizer = BartTokenizer.from_pretrained("facebook/bart-base")
 
     input_ids = []
     output_ids = []
@@ -113,7 +113,7 @@ def main(args):
     train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=args.batch_size)
 
     # instantiate the model
-    model = BartForConditionalGeneration.from_pretrained("facebook/bart-large")
+    model = BartForConditionalGeneration.from_pretrained("facebook/bart-base")
 
 
     model.to(device)
