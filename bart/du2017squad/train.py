@@ -94,9 +94,9 @@ def main(args):
         input_ids.append(sentence_encodings_dict['input_ids'])
         input_att_msks.append(sentence_encodings_dict['attention_mask'])
         question_encodings_dict = tokenizer(question, truncation=True, max_length=MAXLEN_question, padding="max_length")
-        output_ids.append(question_encodings_dict['input_ids'])
+        #output_ids.append(question_encodings_dict['input_ids'])
         output_att_msks.append(question_encodings_dict['attention_mask'])        
-        #output_ids.append([x if x!=0 else -100 for x in question_encodings_dict['input_ids']])
+        output_ids.append([x if x!=0 else -100 for x in question_encodings_dict['input_ids']])
 
     # Convert to torch tensors
     input_ids = torch.tensor(input_ids)
