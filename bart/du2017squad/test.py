@@ -99,6 +99,8 @@ def main(args):
         #print(len(all_generated_ids))
         for generated_ids in all_generated_ids:
             genQu = tokenizer.decode(generated_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+            if '?' in genQu:
+                genQu = genQu[:genQu.find('?')+1]
             all_generated_questions.append(genQu.replace('\n',''))
             all_sentences.append(sentence)
 
