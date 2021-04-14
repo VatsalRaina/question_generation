@@ -161,15 +161,16 @@ def main(args):
             # b_labels = b_target_ids[:, 1:].clone()
             # b_labels[b_target_ids[:, 1:] == 0] = -100
             model.zero_grad()
-            outputs = model(input_ids=b_input_ids, attention_mask=b_att_msks, decoder_input_ids=b_target_ids, decoder_attention_mask=b_target_att_msks)
-            #loss = outputs[0]
+            #outputs = model(input_ids=b_input_ids, attention_mask=b_att_msks, decoder_input_ids=b_target_ids, decoder_attention_mask=b_target_att_msks)
+            outputs = model(input_ids=b_input_ids, attention_mask=b_att_msks, labels=b_target_ids)
+            loss = outputs[0]
 
-            lm_logits = outputs[0]
-            print(lm_logits.size())
-            print(b_shifted_target_ids.size())
-            loss = criterion(lm_logits.view(-1, model.config.vocab_size), b_shifted_target_ids.view(-1))
-            b_shifted_target_att_mask = b_shifted_target_att_mask.view(-1)
-            loss = (loss * b_shifted_target_att_mask).sum() / b_shifted_target_att_mask.sum()
+            #lm_logits = outputs[0]
+            #print(lm_logits.size())
+            #print(b_shifted_target_ids.size())
+            #loss = criterion(lm_logits.view(-1, model.config.vocab_size), b_shifted_target_ids.view(-1))
+            #b_shifted_target_att_mask = b_shifted_target_att_mask.view(-1)
+            #loss = (loss * b_shifted_target_att_mask).sum() / b_shifted_target_att_mask.sum()
 
             print(loss.item())
             total_loss += loss.item()
