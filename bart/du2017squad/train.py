@@ -165,6 +165,8 @@ def main(args):
             #loss = outputs[0]
 
             lm_logits = outputs[0]
+            print(lm_logits.size())
+            print(b_shifted_target_ids.size())
             loss = criterion(lm_logits.view(-1, model.config.vocab_size), b_shifted_target_ids.view(-1))
             b_shifted_target_att_mask = b_shifted_target_att_mask.view(-1)
             loss = (loss * b_shifted_target_att_mask).sum() / b_shifted_target_att_mask.sum()
