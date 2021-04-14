@@ -75,8 +75,8 @@ def main(args):
         if sentence in all_sentences:
             continue
         count+=1
-        if count==20:
-            break
+        # if count==20:
+        #     break
         print(count)
         sentence_encodings_dict = tokenizer(sentence, truncation=True, max_length=MAXLEN_sentence, padding="max_length", return_tensors="pt")
         inp_id = sentence_encodings_dict['input_ids']
