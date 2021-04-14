@@ -77,7 +77,7 @@ def main(args):
     question_file = open(args.question_path, "r")
     questions = question_file.readlines()    
 
-    tokenizer = BartTokenizer.from_pretrained("facebook/bart-base")
+    tokenizer = BartTokenizer.from_pretrained("facebook/bart-large")
 
     input_ids = []
     output_ids = []
@@ -113,7 +113,7 @@ def main(args):
     train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=args.batch_size)
 
     # instantiate the model
-    model = BartForConditionalGeneration.from_pretrained("facebook/bart-base")
+    model = BartForConditionalGeneration.from_pretrained("facebook/bart-large")
 
 
     model.to(device)
@@ -145,7 +145,6 @@ def main(args):
         # Reset the total loss for this epoch.
         total_loss = 0
         model.train()
-        # For each batch of training data...
         for step, batch in enumerate(train_dataloader):
             # Progress update every 40 batches.
             if step % 40 == 0 and not step == 0:
@@ -154,6 +153,7 @@ def main(args):
             b_input_ids = batch[0].to(device)
             b_att_msks = batch[1].to(device)
             b_target_ids = batch[2].to(device)
+            print(b_target_ids.size())
             b_target_att_msks = batch[3].to(device)
             b_shifted_target_ids, b_shifted_target_att_msks = shifted_target_left(b_target_ids, b_target_att_msks)
             b_shifted_target_ids, b_shifted_target_att_msks = b_shifted_target_ids.to(device), b_shifted_target_att_msks.to(device)
