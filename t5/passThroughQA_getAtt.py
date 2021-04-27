@@ -119,9 +119,9 @@ def main(args):
         inp_id, tok_typ_id, att_msk = inp_id.to(device), tok_typ_id.to(device), att_msk.to(device)
         with torch.no_grad():
             att_weights = model.get_att_weights(input_ids=inp_id, attention_mask=att_msk, token_type_ids=tok_typ_id)
-        # Returned shape: (batch_size, num_heads, sequence_length, sequence_length)
-        b_att_weights = att_weights.detach().cpu().numpy().tolist()
-        # Keep only the attention weights with the first head and the CLS token as the query
+        # Returned shape: a tuple of layers where each element is the tensor -> (batch_size, num_heads, sequence_length, sequence_length)
+        b_att_weights = att_weights[0].detach().cpu().numpy().tolist()
+        # Keep only the attention weights with the first head and the CLS token as the query (using the first layer's attention weights)
         first_weights = first_weights[:,0,0,:]
         pred_att_weights += first_weights
 
