@@ -57,6 +57,10 @@ class ElectraQA(torch.nn.Module):
 
         return start_logits, end_logits, verification_logits
     
+    def get_att_weights(self, input_ids, attention_mask, token_type_ids):
+        _, attentions = self.electra(input_ids, attention_mask=attention_mask, token_type_ids=token_type_ids, output_attentions=True)
+        return attentions
+
     def saliency(self, input_embeds):
 
         outputs = self.electra(inputs_embeds=input_embeds)

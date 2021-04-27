@@ -75,6 +75,8 @@ def main(args):
     token_type_ids = []
 
     for i in range(len(all_passages)):
+        if i==20:
+            break
         passage = all_passages[i]
         question = all_questions[i]
         combo = question + " [SEP] " + passage
@@ -108,9 +110,7 @@ def main(args):
     ds = TensorDataset(input_ids, token_type_ids, attention_masks)
     dl = DataLoader(ds, batch_size=args.batch_size, shuffle=False)
 
-    pred_start_logits = []
-    pred_end_logits = []
-    pred_verification_logits = []
+    pred_att_weights = []
     count = 0
 
     for inp_id, tok_typ_id, att_msk in dl:
@@ -118,17 +118,16 @@ def main(args):
         count+=1
         inp_id, tok_typ_id, att_msk = inp_id.to(device), tok_typ_id.to(device), att_msk.to(device)
         with torch.no_grad():
-            start_logits, end_logits, verification_logits = model(input_ids=inp_id, attention_mask=att_msk, token_type_ids=tok_typ_id)
-        b_start_logits = start_logits.detach().cpu().numpy().tolist()
-        pred_start_logits += b_start_logits
-        b_end_logits = end_logits.detach().cpu().numpy().tolist()
-        pred_end_logits += b_end_logits
-        pred_verification_logits += verification_logits.detach().cpu().numpy().tolist()
-    pred_start_logits, pred_end_logits = np.asarray(pred_start_logits), np.asarray(pred_end_logits)
-    pred_verification_logits = np.asarray(pred_verification_logits)
+            att_weights = model.get_att_weights(input_ids=inp_id, attention_mask=att_msk, token_type_ids=tok_typ_id, output_attentions=True)
+        # Returned shape: (batch_size, num_heads, sequence_length, sequence_length)
+        b_att_weights = att_weights.detach().cpu().numpy().tolist()
+        # Keep only the attention weights with the first head and the CLS token as the query
+        first_weights = [:,0,0,:]
+        pred_att_weights += first_weights
 
+    pred_att_weights = np.asarray(pred_att_weights)
 
-    np.save(args.predictions_save_path + "att_weights.npy", pred_start_logits)
+    np.save(args.predictions_save_path + "att_weights.npy", pred_att_weights)
 
 if __name__ == '__main__':
     args = parser.parse_args()
