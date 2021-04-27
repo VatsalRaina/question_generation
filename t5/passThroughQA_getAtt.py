@@ -122,7 +122,7 @@ def main(args):
         # Returned shape: (batch_size, num_heads, sequence_length, sequence_length)
         b_att_weights = att_weights.detach().cpu().numpy().tolist()
         # Keep only the attention weights with the first head and the CLS token as the query
-        first_weights = [:,0,0,:]
+        first_weights = first_weights[:,0,0,:]
         pred_att_weights += first_weights
 
     pred_att_weights = np.asarray(pred_att_weights)
