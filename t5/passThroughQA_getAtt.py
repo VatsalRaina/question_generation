@@ -75,8 +75,8 @@ def main(args):
     token_type_ids = []
 
     for i in range(len(all_passages)):
-        if i==20:
-            break
+        # if i==20:
+        #     break
         passage = all_passages[i]
         question = all_questions[i]
         combo = question + " [SEP] " + passage
@@ -120,9 +120,9 @@ def main(args):
         with torch.no_grad():
             att_weights = model.get_att_weights(input_ids=inp_id, attention_mask=att_msk, token_type_ids=tok_typ_id)
         # Returned shape: a tuple of layers where each element is the tensor -> (batch_size, num_heads, sequence_length, sequence_length)
-        b_att_weights = att_weights[0].detach().cpu().numpy()
-        # Keep only the attention weights with the first head and the CLS token as the query (using the first layer's attention weights)
-        first_weights = b_att_weights[:,0,0,:].tolist()
+        b_att_weights = np.mean(att_weights[0].detach().cpu().numpy(), axis=2)
+        # Mean the attention weights with the first head with each token as the query in turn (using the first layer's attention weights)
+        first_weights = b_att_weights[:,0,:].tolist()
         pred_att_weights += first_weights
 
     pred_att_weights = np.asarray(pred_att_weights)
