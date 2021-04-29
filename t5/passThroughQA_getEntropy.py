@@ -78,8 +78,8 @@ def main(args):
 
     print(len(all_passages))
     for i in range(len(all_passages)):
-        if i==20:
-            break
+        # if i==20:
+        #     break
         print(i)
         passage = all_passages[i]
         question = all_questions[i]
@@ -97,7 +97,7 @@ def main(args):
 
         saliency_av = torch.norm(embedded.grad.data.abs(), dim=1)
         saliency_av = saliency_av.detach().cpu().numpy()
-        print(saliency_av.shape)
+
         # We don't care about the first and last tokens
         saliency_av = saliency_av[1:-1]
 
