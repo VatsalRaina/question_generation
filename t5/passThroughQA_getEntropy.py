@@ -92,7 +92,7 @@ def main(args):
         embedded = torch.tensor(embedding_matrix(pr_resp_pt), requires_grad=True)
 
         start_logits, end_logits, _ = model.saliency(torch.unsqueeze(embedded, 0))
-        sum_logits = start_logits + end_logits
+        sum_logits = torch.sum(start_logits + end_logits)
         sum_logits.backward()
 
         saliency_av = torch.norm(embedded.grad.data.abs(), dim=1)
