@@ -253,7 +253,7 @@ class EnsembleModel:
                 length_penalty=length_penalty,
                 num_beams=num_beams,
                 vocab_size=vocab_size,
-                encoder_outputs=encoder_outputs,
+                all_encoder_outputs=all_encoder_outputs,
                 attention_mask=attention_mask,
                 use_cache=use_cache,
                 model_specific_kwargs=model_specific_kwargs
@@ -282,7 +282,7 @@ class EnsembleModel:
         length_penalty,
         num_beams,
         vocab_size,
-        encoder_outputs,
+        all_encoder_outputs,
         attention_mask,
         use_cache,
         model_specific_kwargs,
@@ -305,7 +305,7 @@ class EnsembleModel:
         beam_scores = beam_scores.view(-1)  # shape (batch_size * num_beams,)
 
         # cache compute states
-        past = (encoder_outputs, None) if encoder_outputs is not None else None
+        all_past = [(encoder_outputs, None) for encoder_outputs in all_encoder_outputs if encoder_outputs is not None]
 
         # done sentences
         done = [False for _ in range(batch_size)]
@@ -313,14 +313,15 @@ class EnsembleModel:
 
 
         while cur_len < max_length:
-            model_inputs = prepare_inputs_for_generation(
-                input_ids, past=past, attention_mask=attention_mask, use_cache=use_cache, **model_specific_kwargs
-            )
-
-            outputs = self.models[0](**model_inputs)  # (batch_size * num_beams, cur_len, vocab_size)
-            # Ensemble across all models
-            for model in self.models[1:]:
-                outputs += model(**model_inputs)
+            for i in range(len(self.models)):
+                model = self.models[i]
+                model_inputs = prepare_inputs_for_generation(
+                    input_ids, past=all_past[i], attention_mask=attention_mask, use_cache=use_cache, **model_specific_kwargs
+                )
+                if i==0:
+                    outputs = model(**model_inputs)
+                else:
+                    outputs += model(**model_inputs)
             outputs = outputs / len(self.models)
             
             next_token_logits = outputs[0][:, -1, :]  # (batch_size * num_beams, vocab_size)
