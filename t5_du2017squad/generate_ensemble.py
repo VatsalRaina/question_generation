@@ -13,7 +13,6 @@ def prepare_inputs_for_generation(
         input_ids = input_ids[:, -1:]
 
     return {
-        "input_ids": input_ids,
         "decoder_input_ids": input_ids,
         "past_key_values": past,
         "encoder_outputs": encoder_outputs,
