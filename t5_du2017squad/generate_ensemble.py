@@ -4,11 +4,11 @@ from typing import Iterable, Optional, Tuple
 from torch.nn import functional as F
 from torch import Tensor
 
-def _reorder_cache(self, past, beam_idx):
+def _reorder_cache(past, beam_idx):
     # if decoder past is not included in output
     # speedy decoding is disabled and no need to reorder
     if past is None:
-        logger.warning("You might want to consider setting `use_cache=True` to speed up decoding")
+        #logger.warning("You might want to consider setting `use_cache=True` to speed up decoding")
         return past
 
     reordered_decoder_past = ()
