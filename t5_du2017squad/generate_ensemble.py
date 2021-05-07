@@ -4,14 +4,27 @@ from typing import Iterable, Optional, Tuple
 from torch.nn import functional as F
 from torch import Tensor
 
+def prepare_inputs_for_generation(
+    input_ids, past=None, attention_mask=None, use_cache=None, encoder_outputs=None, **kwargs
+):
+
+    # cut decoder_input_ids if past is used
+    if past is not None:
+        input_ids = input_ids[:, -1:]
+
+    return {
+        "decoder_input_ids": input_ids,
+        "past_key_values": past,
+        "encoder_outputs": encoder_outputs,
+        "attention_mask": attention_mask,
+        "use_cache": use_cache,
+    }
+
 class EnsembleModel:
     def __init__(self, models):
         self.models = models
         self.config = models[0].config
 
-
-    def prepare_inputs_for_generation(self, input_ids, **kwargs):
-        return {"input_ids": input_ids}
 
     def adjust_logits_during_generation(self, logits, **kwargs):
         return logits
@@ -209,10 +222,11 @@ class EnsembleModel:
                 .to(input_ids.device)
             )
             # expand encoder_outputs
-            for encoder_outputs in all_encoder_outputs:
-                encoder_outputs = (encoder_outputs[0].index_select(0, expanded_batch_idxs), *encoder_outputs[1:])
+            for i in range(len(all_encoder_outputs)):
+                encoder_outputs = all_encoder_outputs[i]
+                all_encoder_outputs[i] = (encoder_outputs[0].index_select(0, expanded_batch_idxs), *encoder_outputs[1:])
 
-                model_specific_kwargs["encoder_outputs"] = encoder_outputs
+            #model_specific_kwargs["encoder_outputs"] = encoder_outputs
 
         else:
             encoder_outputs = None
@@ -299,11 +313,11 @@ class EnsembleModel:
 
 
         while cur_len < max_length:
-            model_inputs = self.prepare_inputs_for_generation(
+            model_inputs = prepare_inputs_for_generation(
                 input_ids, past=past, attention_mask=attention_mask, use_cache=use_cache, **model_specific_kwargs
             )
 
-            outputs = self.models[0](**model_inputs, **model_specific_kwargs)  # (batch_size * num_beams, cur_len, vocab_size)
+            outputs = self.models[0](**model_inputs)  # (batch_size * num_beams, cur_len, vocab_size)
             # Ensemble across all models
             for model in self.models[1:]:
                 outputs += model(**model_inputs)
