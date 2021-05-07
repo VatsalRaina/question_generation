@@ -305,7 +305,7 @@ class EnsembleModel:
         beam_scores = beam_scores.view(-1)  # shape (batch_size * num_beams,)
 
         # cache compute states
-        all_past = [(encoder_outputs, None) for encoder_outputs in all_encoder_outputs if encoder_outputs is not None]
+        all_past = [encoder_outputs for encoder_outputs in all_encoder_outputs]
 
         # done sentences
         done = [False for _ in range(batch_size)]
@@ -318,6 +318,7 @@ class EnsembleModel:
                 model_inputs = prepare_inputs_for_generation(
                     input_ids, past=all_past[i], attention_mask=attention_mask, use_cache=use_cache, **model_specific_kwargs
                 )
+                print(model_inputs.keys())
                 if i==0:
                     outputs = model(**model_inputs)
                 else:
