@@ -83,7 +83,7 @@ def main(args):
         inp_att_msk = sentence_encodings_dict['attention_mask']
 
         all_generated_ids = model.generate(
-            nput_ids=inp_id,
+            input_ids=inp_id,
             attention_mask=inp_att_msk,
             num_beams=args.num_beams, # Less variability
             #do_sample=True,

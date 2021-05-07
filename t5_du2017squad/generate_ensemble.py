@@ -150,7 +150,20 @@ class EnsembleModel:
 
         if self.config.is_encoder_decoder:
             if decoder_start_token_id is None:
-                decoder_start_token_id = bos_token_id
+                # see if BOS token can be used for decoder_start_token_id
+                if bos_token_id is not None:
+                    decoder_start_token_id = bos_token_id
+                elif (
+                    hasattr(self.config, "decoder")
+                    and hasattr(self.config.decoder, "bos_token_id")
+                    and self.config.decoder.bos_token_id is not None
+                ):
+                    decoder_start_token_id = self.config.decoder.bos_token_id
+                else:
+                    raise ValueError(
+                        "decoder_start_token_id or bos_token_id has to be defined for encoder-decoder generation"
+                    )                
+
 
         encoders = []
         for model in self.models:
@@ -198,6 +211,8 @@ class EnsembleModel:
             # expand encoder_outputs
             for encoder_outputs in all_encoder_outputs:
                 encoder_outputs = (encoder_outputs[0].index_select(0, expanded_batch_idxs), *encoder_outputs[1:])
+
+                model_specific_kwargs["encoder_outputs"] = encoder_outputs
 
         else:
             encoder_outputs = None
