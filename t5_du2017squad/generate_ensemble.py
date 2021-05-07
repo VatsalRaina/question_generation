@@ -320,17 +320,21 @@ class EnsembleModel:
                 model_inputs = prepare_inputs_for_generation(
                     input_ids, past=past, attention_mask=attention_mask, use_cache=use_cache, **model_specific_kwargs
                 )
-                outputs = model(**model_inputs)
+                outputs = model(**model_inputs, return_dict=True)
                 if i==0:
-                    next_token_logits = outputs[0][:, -1, :]  # (batch_size * num_beams, vocab_size)
+                    next_token_logits = outputs.logits[:, -1, :]  # (batch_size * num_beams, vocab_size)
                 else:
-                    next_token_logits += outputs[0][:, -1, :]  # (batch_size * num_beams, vocab_size)
-                    
+                    next_token_logits += outputs.logits[:, -1, :]  # (batch_size * num_beams, vocab_size)
+
             next_token_logits = next_token_logits / len(self.models)
 
+
             # if model has past, then set the past variable to speed up decoding
-            if self._use_cache(outputs, use_cache):
-                past = outputs[1]
+            if "past_key_values" in outputs:
+                past = outputs.past_key_values
+            elif "mems" in outputs:
+                past = outputs.mems
+
             if self.config.is_encoder_decoder and do_sample is False:
                 # TODO (PVP) still a bit hacky here - there might be a better solution
                 next_token_logits = self.adjust_logits_during_generation(
@@ -412,6 +416,7 @@ class EnsembleModel:
                 # next sentence beam content, this will get added to next_batch_beam
                 next_sent_beam = []
 
+
                 # next tokens for this sentence
                 for beam_token_rank, (beam_token_id, beam_token_score) in enumerate(
                     zip(next_tokens[batch_idx], next_scores[batch_idx])
@@ -428,7 +433,8 @@ class EnsembleModel:
                         if is_beam_token_worse_than_top_num_beams:
                             continue
                         generated_hyps[batch_idx].add(
-                            input_ids[effective_beam_id].clone(), beam_token_score.item(),
+                            input_ids[effective_beam_id].clone(),
+                            beam_token_score.item(),
                         )
                     else:
                         # add next predicted token since it is not eos_token
@@ -467,6 +473,7 @@ class EnsembleModel:
             if past is not None:
                 past = self._reorder_cache(past, beam_idx)
 
+
             # extend attention_mask for new generated input if only decoder
             if self.config.is_encoder_decoder is False:
                 attention_mask = torch.cat(
@@ -485,7 +492,8 @@ class EnsembleModel:
                 assert torch.all(
                     next_scores[batch_idx, :num_beams] == beam_scores.view(batch_size, num_beams)[batch_idx]
                 ), "If batch_idx is not done, final next scores: {} have to equal to accumulated beam_scores: {}".format(
-                    next_scores[:, :num_beams][batch_idx], beam_scores.view(batch_size, num_beams)[batch_idx],
+                    next_scores[:, :num_beams][batch_idx],
+                    beam_scores.view(batch_size, num_beams)[batch_idx],
                 )
 
             # need to add best num_beams hypotheses to generated hyps
@@ -512,27 +520,26 @@ class EnsembleModel:
                 sent_lengths[effective_batch_idx] = len(best_hyp)
                 best.append(best_hyp)
 
-        # shorter batches are padded
+        # prepare for adding eos
+        sent_max_len = min(sent_lengths.max().item() + 1, max_length)
+        decoded = input_ids.new(output_batch_size, sent_max_len)
+        # shorter batches are padded if needed
         if sent_lengths.min().item() != sent_lengths.max().item():
-            assert pad_token_id is not None, "`Pad_token_id` has to be defined"
-            sent_max_len = min(sent_lengths.max().item() + 1, max_length)
-            decoded = input_ids.new(output_batch_size, sent_max_len).fill_(pad_token_id)
+            assert pad_token_id is not None, "`pad_token_id` has to be defined"
+            decoded.fill_(pad_token_id)
 
-            # fill with hypothesis and eos_token_id if necessary
-            for i, hypo in enumerate(best):
-                decoded[i, : sent_lengths[i]] = hypo
-                if sent_lengths[i] < max_length:
-                    decoded[i, sent_lengths[i]] = eos_token_id
-        else:
-            # none of the hypotheses have an eos_token
-            assert (len(hypo) == max_length for hypo in best)
-            decoded = torch.stack(best).type(torch.long).to(next(self.models[0].parameters()).device)
+        # fill with hypotheses and eos_token_id if the latter fits in
+        for i, hypo in enumerate(best):
+            decoded[i, : sent_lengths[i]] = hypo
+            if sent_lengths[i] < max_length:
+                decoded[i, sent_lengths[i]] = eos_token_id
 
         return decoded
 
     @staticmethod
     def _reorder_cache(past: Tuple, beam_idx: Tensor) -> Tuple[Tensor]:
         return tuple(layer_past.index_select(1, beam_idx) for layer_past in past)
+
 
 
 def calc_banned_ngram_tokens(prev_input_ids: Tensor, num_hypos: int, no_repeat_ngram_size: int, cur_len: int) -> None:
