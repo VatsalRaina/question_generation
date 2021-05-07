@@ -288,7 +288,7 @@ class EnsembleModel:
                 input_ids, past=past, attention_mask=attention_mask, use_cache=use_cache, **model_specific_kwargs
             )
 
-            outputs = self.models[0](**model_inputs)  # (batch_size * num_beams, cur_len, vocab_size)
+            outputs = self.models[0](**model_inputs, **model_specific_kwargs)  # (batch_size * num_beams, cur_len, vocab_size)
             # Ensemble across all models
             for model in self.models[1:]:
                 outputs += model(**model_inputs)
