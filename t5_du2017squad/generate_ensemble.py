@@ -226,7 +226,7 @@ class EnsembleModel:
                 encoder_outputs = all_encoder_outputs[i]
                 all_encoder_outputs[i] = (encoder_outputs[0].index_select(0, expanded_batch_idxs), *encoder_outputs[1:])
 
-            #model_specific_kwargs["encoder_outputs"] = encoder_outputs
+            # model_specific_kwargs["encoder_outputs"] = encoder_outputs
 
         else:
             encoder_outputs = None
@@ -305,7 +305,8 @@ class EnsembleModel:
         beam_scores = beam_scores.view(-1)  # shape (batch_size * num_beams,)
 
         # cache compute states
-        all_past = [encoder_outputs for encoder_outputs in all_encoder_outputs]
+        # all_past = [encoder_outputs for encoder_outputs in all_encoder_outputs]
+        past = None
 
         # done sentences
         done = [False for _ in range(batch_size)]
@@ -314,11 +315,12 @@ class EnsembleModel:
 
         while cur_len < max_length:
             for i in range(len(self.models)):
+                model_specific_kwargs["encoder_outputs"] = all_encoder_outputs[i]
                 model = self.models[i]
                 model_inputs = prepare_inputs_for_generation(
-                    input_ids, past=all_past[i], attention_mask=attention_mask, use_cache=use_cache, **model_specific_kwargs
+                    input_ids, past=past, attention_mask=attention_mask, use_cache=use_cache, **model_specific_kwargs
                 )
-                print(model_inputs.keys())
+                #print(model_inputs.keys())
                 if i==0:
                     outputs = model(**model_inputs)
                 else:
