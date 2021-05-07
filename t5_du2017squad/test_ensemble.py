@@ -23,6 +23,9 @@ parser = argparse.ArgumentParser(description='Get all command line arguments.')
 parser.add_argument('--batch_size', type=int, default=2, help='Specify the training batch size')
 parser.add_argument('--model1_path', type=str, help='Load path of trained model 1')
 parser.add_argument('--model2_path', type=str, help='Load path of trained model 2')
+parser.add_argument('--model3_path', type=str, help='Load path of trained model 3')
+parser.add_argument('--model4_path', type=str, help='Load path of trained model 4')
+parser.add_argument('--model5_path', type=str, help='Load path of trained model 5')
 parser.add_argument('--prediction_save_path', type=str, help='Load path to which trained model will be saved')
 parser.add_argument('--num_beams', type=int, default=1, help='Number of beams')
 parser.add_argument('--sentence_path', type=str, help='Load path to testing sentences')
@@ -62,7 +65,16 @@ def main(args):
     model2 = torch.load(args.model2_path, map_location=device)
     model2.eval().to(device)
 
-    ensembleModel = EnsembleModel([model1, model2])
+    model3 = torch.load(args.model3_path, map_location=device)
+    model3.eval().to(device)
+
+    model4 = torch.load(args.model4_path, map_location=device)
+    model4.eval().to(device)
+
+    model5 = torch.load(args.model5_path, map_location=device)
+    model5.eval().to(device)
+
+    ensembleModel = EnsembleModel([model1, model2, model3, model4, model5])
 
     all_sentences = []
     all_generated_questions = []
