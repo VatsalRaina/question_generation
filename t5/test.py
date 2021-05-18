@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser(description='Get all command line arguments.')
 parser.add_argument('--batch_size', type=int, default=2, help='Specify the training batch size')
 parser.add_argument('--model_path', type=str, help='Load path of trained model')
 parser.add_argument('--prediction_save_path', type=str, help='Load path to which trained model will be saved')
-parser.add_argument('--num_questions', type=int, default=1, help='Number of questions to generate per passage')
+parser.add_argument('--num_beams', type=int, default=1, help='Number of beams to use')
 
 def format_time(elapsed):
     '''
@@ -89,16 +89,16 @@ def main(args):
         all_generated_ids = model.generate(
             input_ids=inp_id,
             attention_mask=inp_att_msk,
-            # num_beams=args.num_questions, # Less variability
+            num_beams=args.num_beams, 
             do_sample=True,
-            top_k=50,           # This parameter and the one below create more question variability but reduced quality of questions
-            top_p=0.95,          
+            #top_k=50,           # This parameter and the one below create more question variability but reduced quality of questions
+            #top_p=0.95,          
             max_length=80,
             repetition_penalty=2.5,
             length_penalty=1.0,
             early_stopping=True,
             use_cache=True,
-            num_return_sequences=args.num_questions
+            num_return_sequences=1
         )
         #print(len(all_generated_ids))
         for generated_ids in all_generated_ids:
