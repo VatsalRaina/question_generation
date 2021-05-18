@@ -90,7 +90,7 @@ def main(args):
             input_ids=inp_id,
             attention_mask=inp_att_msk,
             num_beams=args.num_beams, 
-            do_sample=True,
+            do_sample=False,
             #top_k=50,           # This parameter and the one below create more question variability but reduced quality of questions
             #top_p=0.95,          
             max_length=80,
